@@ -1,5 +1,6 @@
 package com.notgodzilla.quiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -15,6 +16,7 @@ public class QuizActivity extends AppCompatActivity {
     private Button trueButton;
     private Button falseButton;
     private Button nextButton;
+    private Button cheatButton;
 
     private Toast falseToast;
     private Toast correctToast;
@@ -25,11 +27,12 @@ public class QuizActivity extends AppCompatActivity {
     //Key for key-value pair stored in Bundle when saving
     private static final String KEY_INDEX = "index";
     private static final String TAG = "Quiz";
+    private static final int REQUEST_KEY_CODE_CHEAT_ACTIVITY = 0;
 
 
     private Question[] questionBank = {
-           new Question(R.string.question_australia, true),
-           new Question(R.string.question_oceans, true),
+            new Question(R.string.question_australia, true),
+            new Question(R.string.question_oceans, true),
             new Question(R.string.question_mideast, false)
     };
 
@@ -47,12 +50,13 @@ public class QuizActivity extends AppCompatActivity {
 
         questionTextView = (TextView) findViewById(R.id.question_text_view);
         int question = questionBank[currentQuestionIndex].getTextResId();
-        questionTextView.setText(  question);
+        questionTextView.setText(question);
 
 
         trueButton = (Button) findViewById(R.id.true_button);
         falseButton = (Button) findViewById(R.id.false_button);
         nextButton = (Button) findViewById(R.id.next_button);
+        cheatButton = (Button) findViewById(R.id.cheat_button);
 
         setUpButtonListeners();
         setUpToasts();
@@ -84,8 +88,17 @@ public class QuizActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                currentQuestionIndex = (currentQuestionIndex +1)& questionBank.length;
+                currentQuestionIndex = (currentQuestionIndex + 1) & questionBank.length;
                 updateQuestion();
+            }
+        });
+
+        cheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean answer = questionBank[currentQuestionIndex].isAnswerTrue();
+                Intent i = CheatActivity.newIntent(QuizActivity.this, answer);
+                startActivityForResult(i, REQUEST_KEY_CODE_CHEAT_ACTIVITY);
             }
         });
     }
@@ -100,8 +113,8 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void updateQuestion() {
-     int question = questionBank[currentQuestionIndex].getTextResId();
-     questionTextView.setText(question);
+        int question = questionBank[currentQuestionIndex].getTextResId();
+        questionTextView.setText(question);
     }
 
 }
