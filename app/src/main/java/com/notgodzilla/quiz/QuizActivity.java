@@ -2,6 +2,7 @@ package com.notgodzilla.quiz;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -21,12 +22,23 @@ public class QuizActivity extends AppCompatActivity {
     private TextView questionTextView;
     private int currentQuestionIndex = 0;
 
+    //Key for key-value pair stored in Bundle when saving
+    private static final String KEY_INDEX = "index";
+    private static final String TAG = "Quiz";
+
 
     private Question[] questionBank = {
            new Question(R.string.question_australia, true),
            new Question(R.string.question_oceans, true),
             new Question(R.string.question_mideast, false)
     };
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i(TAG, "onSaveInstance");
+        outState.putInt(KEY_INDEX, currentQuestionIndex);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,21 +49,31 @@ public class QuizActivity extends AppCompatActivity {
         int question = questionBank[currentQuestionIndex].getTextResId();
         questionTextView.setText(  question);
 
+
+        trueButton = (Button) findViewById(R.id.true_button);
+        falseButton = (Button) findViewById(R.id.false_button);
+        nextButton = (Button) findViewById(R.id.next_button);
+
+        setUpButtonListeners();
+        setUpToasts();
+        updateQuestion();
+    }
+
+    private void setUpToasts() {
         correctToast = Toast.makeText(QuizActivity.this, R.string.correct_toast, Toast.LENGTH_SHORT);
         correctToast.setGravity(Gravity.TOP, Gravity.CENTER, Gravity.CENTER);
 
         falseToast = Toast.makeText(QuizActivity.this, R.string.incorrect_toast, Toast.LENGTH_SHORT);
         falseToast.setGravity(Gravity.TOP, Gravity.CENTER, Gravity.CENTER);
+    }
 
-        trueButton = (Button) findViewById(R.id.true_button);
-
+    private void setUpButtonListeners() {
         trueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 checkAnswer(true);
             }
         });
-        falseButton = (Button) findViewById(R.id.false_button);
         falseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -59,7 +81,6 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
-        nextButton = (Button) findViewById(R.id.next_button);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,8 +88,6 @@ public class QuizActivity extends AppCompatActivity {
                 updateQuestion();
             }
         });
-
-        updateQuestion();
     }
 
     private void checkAnswer(boolean userInput) {
@@ -84,8 +103,5 @@ public class QuizActivity extends AppCompatActivity {
      int question = questionBank[currentQuestionIndex].getTextResId();
      questionTextView.setText(question);
     }
-
-
-
 
 }
