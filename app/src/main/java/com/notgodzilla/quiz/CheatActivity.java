@@ -12,6 +12,8 @@ import android.widget.TextView;
 public class CheatActivity extends AppCompatActivity {
 
     private static final String EXTRA_ANSWER_IS_TRUE = "com.notgodziila.quiz.answer_is_true";
+    private static final String EXTRA_ANSWER_WAS_SHOWN = "com.notgodzilla.quiz.answer_was_shown";
+
     private boolean answerIsTrue;
     private TextView answerTextView;
     private Button showAnswerButton;
@@ -31,24 +33,36 @@ public class CheatActivity extends AppCompatActivity {
 
     }
 
-    private void setButtonListeners () {
+    private void setButtonListeners() {
         showAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d("onClick", TAG);
-                if(answerIsTrue) {
+                if (answerIsTrue) {
                     answerTextView.setText(R.string.true_button);
                 } else {
                     answerTextView.setText(R.string.false_button);
-
                 }
+
+                setAnswerShownResult(true);
             }
         });
+    }
+
+    private void setAnswerShownResult(boolean answerWasShown) {
+        Intent i = new Intent();
+        i.putExtra(EXTRA_ANSWER_WAS_SHOWN, answerWasShown);
+        setResult(RESULT_OK, i);
     }
 
     public static Intent newIntent(Context packageContext, boolean answerIsTrue) {
         Intent i = new Intent(packageContext, CheatActivity.class);
         i.putExtra(EXTRA_ANSWER_IS_TRUE, answerIsTrue);
         return i;
+    }
+
+    public static boolean wasAnswerShown(Intent result) {
+        Log.d(TAG, "wasAnswerShown");
+        return result.getBooleanExtra(EXTRA_ANSWER_WAS_SHOWN, false);
     }
 }

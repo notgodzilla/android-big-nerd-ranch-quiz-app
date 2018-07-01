@@ -1,5 +1,6 @@
 package com.notgodzilla.quiz;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,17 +19,16 @@ public class QuizActivity extends AppCompatActivity {
     private Button nextButton;
     private Button cheatButton;
 
-    private Toast falseToast;
-    private Toast correctToast;
-
     private TextView questionTextView;
     private int currentQuestionIndex = 0;
+
+    private boolean userCheated = false;
 
     //Key for key-value pair stored in Bundle when saving
     private static final String KEY_INDEX = "index";
     private static final String TAG = "Quiz";
-    private static final int REQUEST_KEY_CODE_CHEAT_ACTIVITY = 0;
 
+    private static final int REQUEST_KEY_CODE_CHEAT_ACTIVITY = 0;
 
     private Question[] questionBank = {
             new Question(R.string.question_australia, true),
@@ -59,16 +59,7 @@ public class QuizActivity extends AppCompatActivity {
         cheatButton = (Button) findViewById(R.id.cheat_button);
 
         setUpButtonListeners();
-        setUpToasts();
         updateQuestion();
-    }
-
-    private void setUpToasts() {
-        correctToast = Toast.makeText(QuizActivity.this, R.string.correct_toast, Toast.LENGTH_SHORT);
-        correctToast.setGravity(Gravity.TOP, Gravity.CENTER, Gravity.CENTER);
-
-        falseToast = Toast.makeText(QuizActivity.this, R.string.incorrect_toast, Toast.LENGTH_SHORT);
-        falseToast.setGravity(Gravity.TOP, Gravity.CENTER, Gravity.CENTER);
     }
 
     private void setUpButtonListeners() {
@@ -105,11 +96,19 @@ public class QuizActivity extends AppCompatActivity {
 
     private void checkAnswer(boolean userInput) {
         boolean userGaveCorrectAnswer = questionBank[currentQuestionIndex].isAnswerTrue() && userInput;
-        if (userGaveCorrectAnswer) {
-            correctToast.show();
+        int messageRId = 0;
+
+        if (userCheated) {
+            messageRId = R.string.judgment_toast;
+        } else if (userGaveCorrectAnswer && !userCheated) {
+            messageRId = R.string.correct_toast;
         } else {
-            falseToast.show();
+            messageRId = R.string.incorrect_toast;
         }
+
+        Toast toast = Toast.makeText(this, messageRId, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.TOP, Gravity.CENTER, Gravity.CENTER);
+        toast.show();
     }
 
     private void updateQuestion() {
@@ -117,4 +116,18 @@ public class QuizActivity extends AppCompatActivity {
         questionTextView.setText(question);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult");
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == REQUEST_KEY_CODE_CHEAT_ACTIVITY) {
+            if (data != null) {
+                userCheated = CheatActivity.wasAnswerShown(data);
+            }
+        }
+
+    }
 }
